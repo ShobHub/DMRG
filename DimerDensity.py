@@ -9,11 +9,11 @@ class dimerDen():
 		Prob_r = []
 		Prob_l = []
 		if(lad[5]=='s'):
-			S0 = np.array([[1., 0.], [0., 0.]])
+			S0 = np.array([[1., 0.], [0., 0.]])   # Onsite Probability Operator for having a rung dimer
 			m = M[5]
 			l0 = m[0].shape[2]
 			s=0
-			for j in range(3):
+			for j in range(3):  # Finding Onsite Basis Probabilities
 				if(j==0):
 					x = np.tensordot(np.tensordot(m[j], m[j], axes=(0,0)), S0[:1,:1], axes=([0,2],[1,0]))     #[vL*] d* vR*  [vL] d vR = [d*] vR* [d] vR [Od] [Ou] = vR* vR
 				else:
@@ -31,7 +31,7 @@ class dimerDen():
 			m = M[5]
 			l0 = m[0].shape[2]
 			OP = []
-			for op in range(4):
+			for op in range(4):   # Finding 4 Onsite Basis Probabilities
 				a0 = np.array([[0]])
 				a1 = np.array([[1]])
 				s=0
@@ -60,7 +60,7 @@ class dimerDen():
 			m = M[5]
 			l0 = m[0].shape[2]
 			OP = []
-			for op in range(5):
+			for op in range(5):   # Finding 5 Onsite Basis Probabilities
 				b0 = np.array([[0]])
 				b1 = np.array([[1]])
 				s=0
@@ -185,7 +185,7 @@ class dimerDen():
 		# print(Prob_l)
 		return Prob_r,Prob_l
 
-	def EET(lad,SS,vr,vl,vlr):
+	def EET(lad,SS,vr,vl,vlr):   #Entanglement Entropy 
 		ET = []
 		N = len(lad)
 		cd = {}
@@ -220,7 +220,7 @@ class dimerDen():
 		#plt.xlim(10,400)
 		#plt.show()
 
-	def CorreFn(lad,M,SS,p,q):
+	def CorreFn(lad,M,SS,p,q):   
 		N = len(lad)
 		li0 = M[5][0].shape[0]
 		li1 = M[5][2].shape[0]
