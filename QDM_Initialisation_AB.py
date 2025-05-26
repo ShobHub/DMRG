@@ -249,7 +249,8 @@ class DMRG_AB():
 			M[5] = [B0h20, B0h30, B0h40, B0h51, B1h10]
 
 		return M,d0_r,d1_r
-	
+
+	# Matrix Product Operator 
 	def MPO(self, lad):	
 		Sp = np.array([[0., 1.], [0., 0.]])
 		Sm = np.array([[0., 0.], [1., 0.]])
@@ -367,7 +368,8 @@ class DMRG_AB():
 				print(i, lad[i - 1:i + 2])
 		return W
 
-	def LEnv_s(self,i,M,LE,W):
+	# Building Left Environment on site `s'
+	def LEnv_s(self,i,M,LE,W):    
 		le=[]
 		b0 = [['0 0', '0 2', '2 0', '2 2'], ['0 1', '*', '2 1', '*'], ['1 0', '1 2', '*', '*'], ['1 1', '*', '*', '*']]
 		for j in range (4):
@@ -387,6 +389,8 @@ class DMRG_AB():
 					s=s+A
 			le.append(s)	
 		return le
+
+	# Building Left Environment on site `A'
 	#B0r10, B0r30, B0r21, B1r40
 	def LEnv_A(self,i,M,LE,W):
 		le=[]
@@ -417,6 +421,8 @@ class DMRG_AB():
 						s=s+A
 			le.append(s)	
 		return le
+
+	# Building Left Environment on site `B'
 	#B0h20, B0h30, B0h40, B0h51, B1h10
 	def LEnv_B(self,i,M,LE,W):
 		le=[]
@@ -452,6 +458,7 @@ class DMRG_AB():
 			le.append(s)	
 		return le
 
+	# Building Right Environment on site `s'
 	def REnv_s(self,i,M,RE,W):
 		re=[]
 		b0 = [['0 0', '0 1', '1 0', '1 1'], ['0 2', '*', '1 2', '*'], ['2 0', '2 1', '*', '*'], ['2 2', '*', '*', '*']]
@@ -473,6 +480,8 @@ class DMRG_AB():
 					s=s+A
 			re.append(s)	
 		return re
+		
+	# Building Right Environment on site `A'
 	#B0r10, B0r30, B0r21, B1r40
 	def REnv_A(self,i,M,RE,W):
 		re=[]
@@ -504,6 +513,8 @@ class DMRG_AB():
 						s=s+A
 			re.append(s)	
 		return re
+
+	# Building Right Environment on site `B'
 	#B0h20, B0h30, B0h40, B0h51, B1h10
 	def REnv_B(self,i,M,RE,W):
 		re=[]
@@ -588,6 +599,7 @@ class DMRG_AB():
 				LE[i] = self.LEnv_B(i,M,LE,W) 
 		return LE,RE
 
+	# Two-site Initialisation
 	def guess_vector_RS(self,i,ss,M):
 		r0 = M[i][0].shape[0]
 		l0 = M[i-1][0].shape[2]
@@ -713,6 +725,7 @@ class DMRG_AB():
 	
 		return [B0h2r0,B0h2e1,B0h3r0,B0h3e1,B0h4r0,B0h4e1,B1h1r0,B1h1e1,B0h5e0]
 
+	# Lanczos algorithm for diagonalisation
 	def Lanczos(self,L, R, gv, wi, wj, td, id):
 		s=0
 		v=[]
@@ -805,6 +818,7 @@ class DMRG_AB():
 		elif(id=='Bs'):
 			return(LHv.FS_Bs(gv,EV,E,td))
 
+	# Builidng ladder through inflation rules
 	def Openladder_infl(self,n,lm):
 		for i in range(n):
 			if(i == 0):
@@ -829,8 +843,8 @@ class DMRG_AB():
 		LE,RE = self.Envs(lad,M,W)
 		SS = [ 0,0,0,0,0, np.diag([1/np.sqrt(d0_r+d1_r)]*(d0_r+d1_r))]
 		SS.extend([ 0 ]*(N-7))
-		td = 100
-		for i in range(n):
+		td = 100   # Bond Dimension
+		for i in range(n):   # Left Sweep
 			# print(i)
 			for j in range(6,N-6):
 				# print(j)
@@ -868,7 +882,7 @@ class DMRG_AB():
 				iters.append(c)
 				#print("Sweep #%i, RS, site%i"%(i,j), E, '\n')
 			td=td+100
-			for j in range(N-8,4,-1):
+			for j in range(N-8,4,-1):   # Right Sweep
 				# print(j)
 				c=c+1
 				id = lad[j:j+2]
@@ -938,11 +952,11 @@ class DMRG_AB():
 # plt.axhline(y=0, color='black')
 # plt.show()
 
-st = time.time()
-color = {0:'#7EC0EE',1:'#EEE8AA',2:'#FF82AB',3:'#9A32CD',4:'#7CCD7C'}
-for x,y in []:    #points: (15,20)
+# st = time.time()
+# color = {0:'#7EC0EE',1:'#EEE8AA',2:'#FF82AB',3:'#9A32CD',4:'#7CCD7C'}
+for x,y in [(15,20)]:    #points: (vr,vl)   
 	print(x,y)
-	obj = DMRG_AB(J=1,Vr=x,Vl=y,Vlr=0.01,ladN=5,lm=0)
+	obj = DMRG_AB(J=1,Vr=x,Vl=y,Vlr=0.01,ladN=5,lm=0)    #Ladder Order = ladN
 	Eng, iters, SS, M, lad = obj.sweeps(1)
 	# print(time.time()-st)
 	plt.plot(iters[:], Eng[:])
