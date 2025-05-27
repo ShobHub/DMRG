@@ -5,10 +5,18 @@ import pickle
 
 class dimerDen():
 	def dimDen(lad,M,SS,vr,vl,vlr):
+		'''
+  		M : List of MPS tensors
+    		SS : List of Schmidt matrices across the MPS chain
+      
+		Returns a list of onsite probabilities for finding rung, leg, or rung-leg states on each site of the ladder.
+
+		This helps in understanding the structure of the ground state superposition across different parameter regimes.
+		'''
 		N = len(lad)
 		Prob_r = []
 		Prob_l = []
-		if(lad[5]=='s'):
+		if(lad[5]=='s'):  # For site 5
 			S0 = np.array([[1., 0.], [0., 0.]])   # Onsite Probability Operator for having a rung dimer
 			m = M[5]
 			l0 = m[0].shape[2]
@@ -25,8 +33,8 @@ class dimerDen():
 				f = np.tensordot(x, ss, axes=([0,1],[0,1]))           # [vR*] [vR]  [sil*] [sil]
 				s = s + f
 			#print("Site is %s at %i"%('s',5), s)
-			Prob_r.append(s)
-			Prob_l.append(1-s)
+			Prob_r.append(s)    # Probabilities of having rung states on 's'
+			Prob_l.append(1-s)  # Probabilities of having leg states on 's'
 		elif(lad[5] == 'A'):
 			m = M[5]
 			l0 = m[0].shape[2]
@@ -54,8 +62,8 @@ class dimerDen():
 					s += f
 				OP.append(s)
 				#print("Site is %s at %i and OP is %i"%('A',5,op), s)
-			Prob_r.append(OP[0]+OP[2])
-			Prob_l.append(OP[1]+OP[3])
+			Prob_r.append(OP[0]+OP[2])   # Probabilities of having leg-rung states on 'A'
+			Prob_l.append(OP[1]+OP[3])   # Probabilities of having all leg states on 'A'
 		elif(lad[5] == 'B'):
 			m = M[5]
 			l0 = m[0].shape[2]
@@ -85,9 +93,10 @@ class dimerDen():
 					s += f
 				OP.append(s)
 				#print("Site is %s at %i and OP is %i"%('B',5,op), s)
-			Prob_r.append(OP[1]+OP[2]+OP[3])
-			Prob_l.append(OP[0]+OP[4])
-		for i in range(6,N-5):
+			Prob_r.append(OP[1]+OP[2]+OP[3]) # Probabilities of having leg-rung states on 'B'
+			Prob_l.append(OP[0]+OP[4])       # Probabilities of having all leg states on 'B'
+			
+		for i in range(6,N-5):   # For rest of ladder
 			if(lad[i]=='s'):
 				S0 = np.array([[1., 0.], [0., 0.]])
 				m = M[i]
@@ -185,7 +194,11 @@ class dimerDen():
 		# print(Prob_l)
 		return Prob_r,Prob_l
 
-	def EET(lad,SS,vr,vl,vlr):   #Entanglement Entropy 
+	def EET(lad,SS,vr,vl,vlr):   # Entanglement Entropy 
+		'''
+  		SS : List of Schmidt matrices across the MPS chain
+  		Returns the list of Entanglement Entropies at each bond across MPS
+    		'''
 		ET = []
 		N = len(lad)
 		cd = {}
@@ -307,7 +320,7 @@ class dimerDen():
 		return result
 
 
-## PLOT PROB & EE
+## PLOT ONSITE PROBILITIES PLOT & EE
 Lad = pickle.load(open('AllData/YtoG/Lad_L=432.txt','rb'))[5:]
 N = len(Lad)
 i = 80   #201    #80
