@@ -7,7 +7,18 @@ import pickle
 import time
 
 class Lanc_Hv():
-	def Hv(L, R, GV, wi, wj):
+	'''
+ 	The onsite optimisation in two-state dmrg algorithm reduces to solving an eigenvlaue problem $Hv = \Lambda v$. This is solved using the Lanczos algorithm.
+ 	'''
+	def Hv(L, R, GV, wi, wj):   
+		'''
+  		L : Left Env
+    		R : Right Env
+      		GV : Guess vector
+		wi,wj :  MPO operators on current two sites.
+  
+  		Implements The Lanczos algorithm which is an iterative numerical method used to approximate the eigenvalues and eigenvectors of large Hermitian matrices. This makes it particularly effective for extracting extreme eigenvalues (e.g., ground state energies) in large-scale quantum systems, where full diagonalization is computationally impractical.
+  		'''
 	
 		S = 0
 		w1=[]
@@ -578,6 +589,9 @@ class Lanc_Hv():
 		
 		return w1
 
+	'''
+	Convert the ground state eigenvector obtained from the Lanczos algorithm into Matrix Product State (MPS) block-form tensors. This transformation allows the wavefunction to be efficiently represented and manipulated within the DMRG framework.
+	'''
 	def FS_ss(gv,EV,E,td):
 		l0 = gv[0].shape[0]
 		l1 = gv[2].shape[0]
