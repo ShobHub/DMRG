@@ -19,6 +19,9 @@ class DMRG_AB():
 		self.lm = lm
 
 	def exact_states(self,lad):
+		'''
+  		Construct exact left- and right-normalised Matrix Product States (MPS) for the first and last five tensors.
+  		'''
 		M={}
 		# Right Normalised - Exact
 		d0 = 1
@@ -77,7 +80,7 @@ class DMRG_AB():
 				d1 = d0
 				d0 = dt
 			
-		# Right Normalised - Random
+		# Right Normalised - Random Intialisation
 		for i in range(6,N-5):
 			if(lad[i] == 's'):
 				a1 = np.random.uniform(-1,1,(d0,d0+d1))       
@@ -192,7 +195,7 @@ class DMRG_AB():
 				d1 = d0
 				d0 = dt
 
-		# Left Normalised - Random
+		# Left Normalised - Random Initialisation
 		if(lad[5] == 's'):
 			a1 = np.random.uniform(-1,1,(d0+d1,d0_r))   
 			a2 = np.random.uniform(-1,1,(d0,d1_r))     
@@ -252,10 +255,10 @@ class DMRG_AB():
 
 	# Matrix Product Operator 
 	def MPO(self, lad):	
-		Sp = np.array([[0., 1.], [0., 0.]])
+		Sp = np.array([[0., 1.], [0., 0.]])     # Creation operator for vertical rungs 
 		Sm = np.array([[0., 0.], [1., 0.]])
 
-		Sr_12 = np.zeros((4,4))
+		Sr_12 = np.zeros((4,4))                 # Operators for each basis state for 'A' Component
 		Sr_12[1][0] = 1
 		Sr_21 = np.zeros((4,4))
 		Sr_21[0][1] = 1
@@ -268,7 +271,7 @@ class DMRG_AB():
 		Sr_43 = np.zeros((4,4))
 		Sr_43[2][3] = 1
 
-		Srr_32 = np.zeros((5,5))
+		Srr_32 = np.zeros((5,5))                # Operators for each basis state for 'A' Component
 		Srr_32[1][2] = 1
 		Srr_23 = np.zeros((5,5))
 		Srr_23[2][1] = 1
@@ -368,7 +371,7 @@ class DMRG_AB():
 				print(i, lad[i - 1:i + 2])
 		return W
 
-	# Building Left Environment on site `s'
+	# Building Left Environment by contracting MPS tensor on site `s'
 	def LEnv_s(self,i,M,LE,W):    
 		le=[]
 		b0 = [['0 0', '0 2', '2 0', '2 2'], ['0 1', '*', '2 1', '*'], ['1 0', '1 2', '*', '*'], ['1 1', '*', '*', '*']]
@@ -390,7 +393,7 @@ class DMRG_AB():
 			le.append(s)	
 		return le
 
-	# Building Left Environment on site `A'
+	# Building Left Environment by contracting MPS tensor on site `A'
 	#B0r10, B0r30, B0r21, B1r40
 	def LEnv_A(self,i,M,LE,W):
 		le=[]
@@ -422,7 +425,7 @@ class DMRG_AB():
 			le.append(s)	
 		return le
 
-	# Building Left Environment on site `B'
+	# Building Left Environment by contracting MPS tensor on site `B'
 	#B0h20, B0h30, B0h40, B0h51, B1h10
 	def LEnv_B(self,i,M,LE,W):
 		le=[]
@@ -458,7 +461,7 @@ class DMRG_AB():
 			le.append(s)	
 		return le
 
-	# Building Right Environment on site `s'
+	# Building Right Environment by contracting MPS tensor on site `s'
 	def REnv_s(self,i,M,RE,W):
 		re=[]
 		b0 = [['0 0', '0 1', '1 0', '1 1'], ['0 2', '*', '1 2', '*'], ['2 0', '2 1', '*', '*'], ['2 2', '*', '*', '*']]
@@ -481,7 +484,7 @@ class DMRG_AB():
 			re.append(s)	
 		return re
 		
-	# Building Right Environment on site `A'
+	# Building Right Environment by contracting MPS tensor on site `A'
 	#B0r10, B0r30, B0r21, B1r40
 	def REnv_A(self,i,M,RE,W):
 		re=[]
@@ -514,7 +517,7 @@ class DMRG_AB():
 			re.append(s)	
 		return re
 
-	# Building Right Environment on site `B'
+	# Building Right Environment by contracting MPS tensor on site `B'
 	#B0h20, B0h30, B0h40, B0h51, B1h10
 	def REnv_B(self,i,M,RE,W):
 		re=[]
@@ -599,7 +602,7 @@ class DMRG_AB():
 				LE[i] = self.LEnv_B(i,M,LE,W) 
 		return LE,RE
 
-	# Two-site Initialisation
+	# Right sweep: Two-site initial state setup for DMRG initialisation
 	def guess_vector_RS(self,i,ss,M):
 		r0 = M[i][0].shape[0]
 		l0 = M[i-1][0].shape[2]
@@ -662,6 +665,8 @@ class DMRG_AB():
 		B0h5e0 = np.tensordot(np.tensordot(ss[:l0,:r0], M[i][3], axes=(1,0)), M[i+1][2], axes=(2,0))
 	
 		return [B0h2r0,B0h2e1,B0h3r0,B0h3e1,B0h4r0,B0h4e1,B1h1r0,B1h1e1,B0h5e0]
+
+	# Left sweep: Two-site initial state setup for DMRG initialisation 
 	def guess_vector_LS(self,i,ss,M):
 		l0 = M[i+1][0].shape[2]
 		r0 = M[i+2][0].shape[0]
@@ -725,7 +730,7 @@ class DMRG_AB():
 	
 		return [B0h2r0,B0h2e1,B0h3r0,B0h3e1,B0h4r0,B0h4e1,B1h1r0,B1h1e1,B0h5e0]
 
-	# Lanczos algorithm for diagonalisation
+	# Lanczos algorithm for solving the eigenvalue problem during current two-site diagonalisation
 	def Lanczos(self,L, R, gv, wi, wj, td, id):
 		s=0
 		v=[]
@@ -818,7 +823,7 @@ class DMRG_AB():
 		elif(id=='Bs'):
 			return(LHv.FS_Bs(gv,EV,E,td))
 
-	# Builidng ladder through inflation rules
+	# Builidng different ladders through inflation rules
 	def Openladder_infl(self,n,lm):
 		for i in range(n):
 			if(i == 0):
@@ -831,6 +836,7 @@ class DMRG_AB():
 				lad = lad.replace('sA','sAssBs')
 		return lad[lm:len(lad)-lm]
 
+	# DMRG Sweeping Procedure
 	def sweeps(self,n):
 		c=0
 		Eng = []
