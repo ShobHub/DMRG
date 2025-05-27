@@ -857,6 +857,8 @@ class DMRG_AB():
 				c=c+1
 				id = lad[j:j+2]
 				#print(i,j,id) 
+				
+				# Construct two-site guess vector
 				if(id=='ss'):
 					gv = self.guess_vector_RS(j,SS[j-1],M)
 				elif(id=='sA'):
@@ -867,8 +869,11 @@ class DMRG_AB():
 					gv = self.guess_vector_RS_As(j,SS[j-1],M)
 				elif(id=='Bs'):
 					gv = self.guess_vector_RS_Bs(j,SS[j-1],M)
+					
+				# Onsite optimization using Lanczos to minimize the energy and return updated two-site tensors
 				E, M[j], M[j+1], SS[j] = self.Lanczos(LE[j-1], RE[j+2], gv, W[j], W[j+1],td,id)
 
+				# Construct updated left and right environments by contracting the updated two-site tensors
 				if(id=='ss'):
 					LE[j] = self.LEnv_s(j,M,LE,W)
 					RE[j+1] = self.REnv_s(j+1,M,RE,W)
@@ -887,12 +892,15 @@ class DMRG_AB():
 				Eng.append(E)
 				iters.append(c)
 				#print("Sweep #%i, RS, site%i"%(i,j), E, '\n')
-			td=td+100
+			td=td+100   # Increase bond dimension after every half sweep
+			
 			for j in range(N-8,4,-1):   # Right Sweep
 				# print(j)
 				c=c+1
 				id = lad[j:j+2]
 				#print(i,j,id) 
+
+				# Construct two-site guess vector
 				if(id=='ss'):
 					gv = self.guess_vector_LS(j,SS[j+1],M)
 				elif(id=='sA'):
@@ -903,8 +911,11 @@ class DMRG_AB():
 					gv = self.guess_vector_LS_As(j,SS[j+1],M)
 				elif(id=='Bs'):
 					gv = self.guess_vector_LS_Bs(j,SS[j+1],M)
+
+				# Onsite optimization using Lanczos to minimize the energy and return updated two-site tensors
 				E, M[j], M[j+1], SS[j] = self.Lanczos(LE[j-1], RE[j+2], gv, W[j], W[j+1],td,id)
 		
+				# Construct updated left and right environments by contracting the updated two-site tensors
 				if(id=='ss'):
 					LE[j] = self.LEnv_s(j,M,LE,W)
 					RE[j+1] = self.REnv_s(j+1,M,RE,W)
@@ -923,7 +934,7 @@ class DMRG_AB():
 				Eng.append(E)
 				iters.append(c)
 				#print("Sweep #%i, LS, site%i"%(i,j), E, '\n')
-			td=td+100
+			td=td+100   # Increase bond dimension after every half sweep
 
 		return Eng, iters, SS, M, lad
 
