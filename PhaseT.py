@@ -8,6 +8,8 @@ import pickle
 
 class phases():
     def closeB(self,lad,j):
+        ''' Find closest 'B' component in the middle of a ladder'''
+        
         ra = lad[j:j+10].index('B')
         la = lad[j-10:j][::-1].index('B')
         if ra<la:
@@ -16,6 +18,8 @@ class phases():
             return j-la-1
 
     def OP_YtoP(self,N,vr,VL,str):
+        '''For phase trasntions[IV to I ; II to III]: Calculates Order Paramter (after sweeps) vs vl'''
+        
         OP = []
         lad = pickle.load(open('AllData/%s/Lad_L=%i.txt'%(str,N),'rb'))
         for j in VL:
@@ -30,6 +34,8 @@ class phases():
         return OP
 
     def OP_PtoDB(self,N,vr,VL,str,sub):
+        '''For phase trasntions[III to V ; V to I ; II to IV]: Calculates Order Paramter (after sweeps) vs vl'''
+        
         OP = []
         lad = pickle.load(open('AllData/%s/Lad_L=%i.txt' % (str, N), 'rb'))
         ind = []
@@ -44,25 +50,27 @@ class phases():
             OP.append(sum/(len(ind)/2) - sub)
         return OP
 
-    def Correlation_Length(self,N,vr,VL,str):
-        lad = pickle.load(open('AllData/%s/Lad_L=%i.txt' % (str,N), 'rb'))
-        for j in VL[:]:
-            M = pickle.load(open('AllData/%s/FS_Vr=%.3f_Vl=%.5f_L=%i.txt' % (str, vr, j, N), 'rb'))
-            SS = pickle.load(open('AllData/%s/SS_Vr=%.3f_Vl=%.5f_L=%i.txt' % (str, vr, j, N), 'rb'))
-            Prob_l = pickle.load(open('AllData/%s/ProbL_Vr=%.3f_Vl=%.5f_L=%i.txt' % (str, vr, j, N), 'rb'))
-            half = int(N/2)
-            Cij = []
-            x = []
-            for i in range(half+1,N-10):
-                print(i)
-                Cij.append(DD.CorreFn(lad,M,SS,i,half) - (Prob_l[i] * Prob_l[half]))  ##??
-                x.append(i-half)
-            plt.scatter(x,Cij,s=10)
-            plt.show()
+    # def Correlation_Length(self,N,vr,VL,str):
+    #     lad = pickle.load(open('AllData/%s/Lad_L=%i.txt' % (str,N), 'rb'))
+    #     for j in VL[:]:
+    #         M = pickle.load(open('AllData/%s/FS_Vr=%.3f_Vl=%.5f_L=%i.txt' % (str, vr, j, N), 'rb'))
+    #         SS = pickle.load(open('AllData/%s/SS_Vr=%.3f_Vl=%.5f_L=%i.txt' % (str, vr, j, N), 'rb'))
+    #         Prob_l = pickle.load(open('AllData/%s/ProbL_Vr=%.3f_Vl=%.5f_L=%i.txt' % (str, vr, j, N), 'rb'))
+    #         half = int(N/2)
+    #         Cij = []
+    #         x = []
+    #         for i in range(half+1,N-10):
+    #             print(i)
+    #             Cij.append(DD.CorreFn(lad,M,SS,i,half) - (Prob_l[i] * Prob_l[half]))  ##??
+    #             x.append(i-half)
+    #         plt.scatter(x,Cij,s=10)
+    #         plt.show()
 
     def energyN_PT(self,l,pf,pc,vlFlag,str,lm):            # if vlFlag = True --> parameter changing(pc) along a PT line is vl and vr is the fixed parameter(pf)
+        '''Calculates Energy per site (after sweeps) vs vl'''
+        
         E = []
-        for j in pc:
+        for j in pc:    
             print(j)
             if vlFlag:
                 obj = dm(J=1,Vr=pf, Vl=j, Vlr=vlr, ladN=l, lm=lm)
@@ -89,27 +97,27 @@ class phases():
         pickle.dump(lad, open('AllData/%s/Lad_L=%i.txt' % (str,len(lad)), 'wb'))
         return E,len(lad),lad
 
-    def UniClass(self, VR, VL, str_):
-        #LM = [148,115,92,60,33]   #133,
-        LM = [445, 345, 275, 180] #, 400, 100]
-        OP_uc = np.zeros((len(VL),len(LM)))
-        LAD = []
-        for lm in range(len(LM)):
-            _,_,lad = self.energyN_PT(5,VR,VL,True,str_,LM[lm])
-            LAD.append(len(lad))
-            ind = []
-            for i in range(5, len(lad) - 5):
-                if lad[i:i + 2] == 'ss' and lad[i - 3:i] != 'AsA' and lad[i + 2:i + 5] != 'AsA':
-                    ind.extend([i - 5, i + 1 - 5])
-            mid = int(len(ind)/2)
-            for j in range(len(VL)):
-                Prob_r = pickle.load(open('AllData/%s/ProbR_Vr=%.3f_Vl=%.5f_L=%i_1.txt' %(str_, VR, VL[j], len(lad)), 'rb'))
-                print(len(Prob_r))
-                for i in ind[mid-2:mid+2]:   #[2:-2]
-                    OP_uc[j][lm] += Prob_r[i]
-                OP_uc[j][lm] = OP_uc[j][lm]/2     #(mid-2)  #2
-            print(OP_uc,np.log(OP_uc))
-        return OP_uc,LAD
+    # def UniClass(self, VR, VL, str_):
+    #     #LM = [148,115,92,60,33]   #133,
+    #     LM = [445, 345, 275, 180] #, 400, 100]
+    #     OP_uc = np.zeros((len(VL),len(LM)))
+    #     LAD = []
+    #     for lm in range(len(LM)):
+    #         _,_,lad = self.energyN_PT(5,VR,VL,True,str_,LM[lm])
+    #         LAD.append(len(lad))
+    #         ind = []
+    #         for i in range(5, len(lad) - 5):
+    #             if lad[i:i + 2] == 'ss' and lad[i - 3:i] != 'AsA' and lad[i + 2:i + 5] != 'AsA':
+    #                 ind.extend([i - 5, i + 1 - 5])
+    #         mid = int(len(ind)/2)
+    #         for j in range(len(VL)):
+    #             Prob_r = pickle.load(open('AllData/%s/ProbR_Vr=%.3f_Vl=%.5f_L=%i_1.txt' %(str_, VR, VL[j], len(lad)), 'rb'))
+    #             print(len(Prob_r))
+    #             for i in ind[mid-2:mid+2]:   #[2:-2]
+    #                 OP_uc[j][lm] += Prob_r[i]
+    #             OP_uc[j][lm] = OP_uc[j][lm]/2     #(mid-2)  #2
+    #         print(OP_uc,np.log(OP_uc))
+    #     return OP_uc,LAD
 
 vlr = 0.01
 ladL = [4]
@@ -124,8 +132,8 @@ VL = np.linspace(-0.625,-0.47,40)      # (2,3,5,10,20)[-0.75,-0.3,40] ; (0.1)[-1
 for i in VR:
     for j in ladL:
         #obj.Correlation_Length(1296, i, VL, 'YelToPink')
-        E,N,_ = obj.energyN_PT(j,i,VL,True,'YelToPink',0)
-        OP = obj.OP_YtoP(N,i,VL,'YelToPink')
+        E,N,_ = obj.energyN_PT(j,i,VL,True,'YelToPink',0)      # Energy per site vs vl
+        OP = obj.OP_YtoP(N,i,VL,'YelToPink')                   # Order Paramter vs vl
         print(E)
         print(OP)
         pickle.dump([VL,E],open('YelToPink/E_N/Vr=%.3f_L=%i.txt'%(i,N),'wb'))
