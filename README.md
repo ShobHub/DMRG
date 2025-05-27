@@ -2,7 +2,7 @@
 
 # Quantum Dimer Model – DMRG Simulation Code
 
-This repository contains the complete DMRG codebase used to study the Quantum Dimer Model (QDM), with hard dimer constraints explicitly encoded.
+This repository contains the complete DMRG codebase used to study the Quantum Dimer Model (QDM), with hard dimer constraints explicitly encoded. 
 
 ## Overview
 
