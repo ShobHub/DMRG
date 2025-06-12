@@ -935,7 +935,7 @@ class DMRG_AB():
 				iters.append(c)
 				#print("Sweep #%i, LS, site%i"%(i,j), E, '\n')
 			td=td+100   # Increase bond dimension after every half sweep: Increasing gradually allows the algorithm to refine the wavefunction without overfitting noise or getting stuck in local minima.
-
+ 			# D increases every sweep, many Lanczos iterations (≈ 100), a few sweeps (≈ 5).
 		return Eng, iters, SS, M, lad
 
 # st = time.time()
