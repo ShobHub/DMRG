@@ -934,7 +934,7 @@ class DMRG_AB():
 				Eng.append(E)
 				iters.append(c)
 				#print("Sweep #%i, LS, site%i"%(i,j), E, '\n')
-			td=td+100   # Increase bond dimension after every half sweep
+			td=td+100   # Increase bond dimension after every half sweep: Increasing gradually allows the algorithm to refine the wavefunction without overfitting noise or getting stuck in local minima.
 
 		return Eng, iters, SS, M, lad
 
